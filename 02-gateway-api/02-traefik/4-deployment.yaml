@@ -1,0 +1,75 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: traefik
+  labels:
+    app: traefik
+  namespace: traefik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traefik
+  template:
+    metadata:
+      labels:
+        app: traefik
+    spec:
+      serviceAccountName: traefik-ingress-controller
+      containers:
+        - name: traefik
+          image: traefik:v2.6
+          imagePullPolicy: IfNotPresent
+          args:
+            - --api=true
+            - --api.dashboard=true
+            - --ping=true
+            - --log.level=DEBUG
+            - --entryPoints.web.Address=:80/tcp
+            - --entryPoints.websecure.Address=:443
+            - --entryPoints.traefik.address=:9000/tcp
+            - --experimental.kubernetesgateway=true
+            - --providers.kubernetesgateway=true
+            - --providers.kubernetescrd.allowCrossNamespace
+            - --providers.kubernetescrd
+            - --providers.kubernetescrd.allowCrossNamespace=true
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 9000
+            failureThreshold: 1
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 2
+
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 9000
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 2
+
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1000Mi
+            requests:
+              cpu: 100m
+              memory: 50Mi
+
+          ports:
+            - name: web
+              containerPort: 80
+            - name: websecure
+              containerPort: 443
+          volumeMounts:
+            - mountPath: /data
+              name: storage-volume
+      volumes:
+        - name: storage-volume
+          emptyDir: {}

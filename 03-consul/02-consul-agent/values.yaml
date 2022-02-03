@@ -1,0 +1,54 @@
+global:
+  name: consul
+  enabled: false
+  enableConsulNamespaces: true
+  datacenter: consul-cluster
+  acls:
+    manageSystemACLs: true
+    bootstrapToken:
+      secretName: consul-bootstrap-token
+      secretKey: token
+  gossipEncryption:
+    secretName: consul-gossip-key
+    secretKey: key
+  tls:
+    enabled: true
+    enableAutoEncrypt: true
+    caCert:
+      secretName: consul-ca-cert
+      secretKey: tls.crt
+  federation:
+    enabled: true    
+externalServers:
+  enabled: true
+  hosts: ["consul-cluster.private.consul.50108fb6-25db-4763-b37f-16866f03465a.aws.hashicorp.cloud"]
+  httpsPort: 443
+  useSystemRoots: true
+  k8sAuthMethodHost: https://api.f1.aws.traefiklabs.tech
+client:
+  enabled: true
+  join: ["consul-cluster.private.consul.50108fb6-25db-4763-b37f-16866f03465a.aws.hashicorp.cloud"]
+connectInject:
+  enabled: false
+  default: false
+  consulNamespaces:
+    consulDestinationNamespace: 'apps'
+syncCatalog:
+  # This method will automatically synchronize Kubernetes services to Consul:
+  # (No sidecar is injected by this method):
+  enabled: true
+  toConsul: true
+  toK8S: false
+  default: false
+  consulNamespaces:
+    consulDestinationNamespace: 'apps'
+controller:
+  enabled: true
+ingressGateways:
+  enabled: false
+  defaults:
+    replicas: 1
+  gateways:
+    - name: ingress-gateway
+      service:
+        type: LoadBalancer

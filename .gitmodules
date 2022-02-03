@@ -1,0 +1,3 @@
+[submodule "01-http3/traefik-http3"]
+	path = 01-http3/traefik-http3
+	url = https://github.com/traefik-tech-blog/traefik-http3
