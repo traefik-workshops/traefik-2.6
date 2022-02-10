@@ -1,0 +1,17 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: whoami-tcp
+  namespace: app
+spec:
+  entryPoints:                  
+    - footcp
+  routes:                       
+  - match: HostSNI(`*`)         
+    middlewares:
+    - name: test-inflightconn
+      namespace: app
+    services:                  
+    - name: whoami-tcp                
+      port: 8080                

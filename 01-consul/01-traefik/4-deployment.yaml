@@ -30,6 +30,7 @@ spec:
             - --entryPoints.websecure.Address=:443
             - --entryPoints.traefik.address=:9000/tcp
             - --experimental.kubernetesgateway=true
+            - --providers.file.filename=/config/dynamic.yaml
             - --providers.kubernetesgateway=true
             - --providers.kubernetescrd.allowCrossNamespace
             - --providers.kubernetescrd
@@ -37,7 +38,15 @@ spec:
             - --providers.consul.endpoints=https://consul-cluster.private.consul.50108fb6-25db-4763-b37f-16866f03465a.aws.hashicorp.cloud
             - --providers.consul.token=4fe3a3a1-603b-cd4c-34de-9e942e2aa037
             - --providers.consul.rootkey=traefik
-
+            - --providers.consul.namespace=traefik
+            - --providers.consulCatalog.endpoint.address=consul-cluster.private.consul.50108fb6-25db-4763-b37f-16866f03465a.aws.hashicorp.cloud
+            - --providers.consulCatalog.endpoint.scheme=https
+            - --providers.consulCatalog.namespace=apps
+            - --providers.consulCatalog.endpoint.token=4fe3a3a1-603b-cd4c-34de-9e942e2aa037
+            - --providers.consulCatalog.defaultRule=Host(`{{ .Name }}.f1.demo.traefiklabs.tech`)
+            - --certificatesresolvers.le.acme.tlschallenge=true
+            - --certificatesresolvers.le.acme.storage=/data/acme.json
+            - --certificatesresolvers.le.acme.email=jakub.hajek+acme@traefik.io
           readinessProbe:
             httpGet:
               path: /ping
@@ -71,9 +80,19 @@ spec:
               containerPort: 80
             - name: websecure
               containerPort: 443
+            - name: http3-udp
+              containerPort: 8443
+              protocol: UDP  
           volumeMounts:
             - mountPath: /data
               name: storage-volume
+            - name: traefik-cfg
+              mountPath: /config  
       volumes:
         - name: storage-volume
-          emptyDir: {}
+          emptyDir: {} 
+              
+        - name: traefik-cfg
+
+          configMap:
+            name: traefik-cfg

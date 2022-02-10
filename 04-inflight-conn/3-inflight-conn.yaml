@@ -1,0 +1,9 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: MiddlewareTCP
+metadata:
+  name: test-inflightconn
+  namespace: app
+spec:
+  inFlightConn:
+    amount: 1

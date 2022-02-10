@@ -12,7 +12,7 @@ spec:
       namespace: default
 
   hostnames:
-    - whoami.f1.demo.traefiklabs.tech
+    - whoami2.f1.demo.traefiklabs.tech
 
   rules:
     - matches:

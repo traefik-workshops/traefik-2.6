@@ -1,0 +1,14 @@
+http:
+  routers:
+    consul-router:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`consul.f1.demo.traefiklabs.tech`)"
+      service: "consul-svc"
+      tls:
+        certResolver: le
+  services:
+    consul-svc:
+      loadBalancer:
+        servers:
+          - url: "https://consul-cluster.private.consul.50108fb6-25db-4763-b37f-16866f03465a.aws.hashicorp.cloud"
